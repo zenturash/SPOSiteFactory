@@ -71,11 +71,23 @@ function Test-SPOFactoryConnection {
             # Test the actual connection
             Write-SPOFactoryLog -Message "Testing connection for client: $ClientName" -Level Debug -ClientName $ClientName
             
-            # Try to get current web to verify connection
-            $web = Get-PnPWeb -ErrorAction Stop
-            
-            if (-not $web) {
-                throw "Unable to retrieve web context"
+            # Special handling for WebLogin connections
+            if ($connectionInfo.AuthMethod -eq 'WebLogin') {
+                # WebLogin doesn't have web context, but we can verify the connection exists
+                $conn = Get-PnPConnection -ErrorAction SilentlyContinue
+                if ($conn) {
+                    Write-SPOFactoryLog -Message "WebLogin connection verified for client: $ClientName" -Level Debug -ClientName $ClientName
+                    $web = @{ Url = $connectionInfo.TenantUrl; Title = "Admin Center (WebLogin)" }
+                } else {
+                    throw "WebLogin connection no longer valid"
+                }
+            } else {
+                # Standard connection test for other auth methods
+                $web = Get-PnPWeb -ErrorAction Stop
+                
+                if (-not $web) {
+                    throw "Unable to retrieve web context"
+                }
             }
             
             # Build result object

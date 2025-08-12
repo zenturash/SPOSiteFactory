@@ -81,7 +81,7 @@ function Get-SPOFactoryTenantInfo {
             }
 
             # Ensure we have a connection
-            $connection = $script:SPOFactoryConnections[$ClientName]
+            $connection = $script:SPOConnections[$ClientName]
             if (-not $connection) {
                 throw "No active connection found for client: $ClientName"
             }
@@ -126,6 +126,28 @@ function Get-SPOFactoryTenantInfo {
 function Get-SPOFactoryBasicTenantInfo {
     [CmdletBinding()]
     param([string]$ClientName)
+
+    # Check if we have a WebLogin connection
+    $isWebLogin = $false
+    if ($ClientName -and $script:SPOConnections -and $script:SPOConnections.ContainsKey($ClientName)) {
+        $connInfo = $script:SPOConnections[$ClientName]
+        $isWebLogin = ($connInfo.AuthMethod -eq 'WebLogin')
+        
+        if ($isWebLogin) {
+            # For WebLogin, return minimal info since we don't have SharePoint context
+            return @{
+                DisplayName = "WebLogin Connection"
+                TenantUrl = $connInfo.TenantUrl
+                PrimaryDomain = ""
+                Region = Get-SPOFactoryTenantRegion -TenantUrl $connInfo.TenantUrl
+                CreatedDate = $null
+                LastModified = $null
+                TenantId = ""
+                ComplianceAttribute = ""
+                GeoLocation = ""
+            }
+        }
+    }
 
     return Invoke-SPOFactoryCommand -ScriptBlock {
         $tenant = Get-PnPTenant -ErrorAction Stop

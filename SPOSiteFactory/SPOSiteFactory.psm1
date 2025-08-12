@@ -252,28 +252,28 @@ SPOSiteFactory Initialization Summary:
 
 #region Export Module Members
 
-# Get all public function names from each subfolder
+# Get all public function names by parsing the actual function definitions
 $functionsToExport = @()
 
-# Connection functions
-$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Connection" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
-    Select-Object -ExpandProperty BaseName
+# Get all public .ps1 files
+$publicFiles = Get-ChildItem -Path "$PSScriptRoot\Public" -Filter "*.ps1" -Recurse -ErrorAction SilentlyContinue
 
-# Configuration functions
-$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Configuration" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
-    Select-Object -ExpandProperty BaseName
+foreach ($file in $publicFiles) {
+    # Parse the file content to find function definitions
+    $content = Get-Content -Path $file.FullName -Raw
+    $functionPattern = 'function\s+([a-zA-Z0-9\-_]+)\s*\{'
+    $matches = [regex]::Matches($content, $functionPattern)
+    
+    foreach ($match in $matches) {
+        $functionName = $match.Groups[1].Value
+        if ($functionName -and $functionName -notlike '*Test*Internal*') {
+            $functionsToExport += $functionName
+        }
+    }
+}
 
-# Hub functions
-$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Hub" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
-    Select-Object -ExpandProperty BaseName
-
-# Provisioning functions
-$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Provisioning" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
-    Select-Object -ExpandProperty BaseName
-
-# Security functions
-$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Security" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
-    Select-Object -ExpandProperty BaseName
+# Remove duplicates
+$functionsToExport = $functionsToExport | Select-Object -Unique
 
 # Export all public functions
 if ($functionsToExport) {

@@ -209,10 +209,21 @@ function New-SPOSite {
         try {
             Write-SPOFactoryLog -Message "Validating prerequisites and parameters" -Level Debug -ClientName $ClientName -Category 'Provisioning'
             
-            # Test connection
-            $connectionTest = Test-SPOFactoryConnection -ClientName $ClientName
-            if (-not $connectionTest.IsConnected) {
-                throw "Not connected to SharePoint Online. Connection required for site creation."
+            # Test connection - special handling for WebLogin
+            if ($script:SPOConnections -and $script:SPOConnections.ContainsKey($ClientName)) {
+                $connInfo = $script:SPOConnections[$ClientName]
+                if ($connInfo.AuthMethod -eq 'WebLogin') {
+                    # WebLogin connections are valid for admin operations
+                    Write-SPOFactoryLog -Message "Using WebLogin connection for site creation" -Level Debug -ClientName $ClientName -Category 'Provisioning'
+                } else {
+                    # Standard connection test for other auth methods
+                    $connectionTest = Test-SPOFactoryConnection -ClientName $ClientName
+                    if (-not $connectionTest.IsConnected) {
+                        throw "Not connected to SharePoint Online. Connection required for site creation."
+                    }
+                }
+            } else {
+                throw "No connection found for client: $ClientName. Please connect first using Connect-SPOFactory."
             }
 
             # Validate URL format and availability
@@ -458,9 +469,8 @@ function New-SPOFactoryM365Group {
         $groupResult = Invoke-SPOFactoryCommand -ScriptBlock {
             $groupParams = @{
                 DisplayName = $DisplayName
-                Alias = $GroupAlias
-                Owner = $Owner
-                IsPrivate = $true  # Private by default for MSP security
+                MailNickname = $GroupAlias
+                Owners = @($Owner)
             }
 
             if ($Description) {
@@ -477,10 +487,12 @@ function New-SPOFactoryM365Group {
 
             # Add additional owners if specified
             if ($AdditionalOwners -and $AdditionalOwners.Count -gt 0) {
+                $groupId = $groupResult.Id
                 foreach ($additionalOwner in $AdditionalOwners) {
                     try {
+                        $ownerEmail = $additionalOwner
                         Invoke-SPOFactoryCommand -ScriptBlock {
-                            Add-PnPMicrosoft365GroupOwner -Identity $groupResult.Id -Users $additionalOwner
+                            Add-PnPMicrosoft365GroupOwner -Identity $using:groupId -Users $using:ownerEmail
                         } -ClientName $ClientName -Category 'Provisioning' -SuppressErrors
                     }
                     catch {
@@ -491,10 +503,12 @@ function New-SPOFactoryM365Group {
 
             # Add members if specified
             if ($Members -and $Members.Count -gt 0) {
+                $groupId = $groupResult.Id
                 foreach ($member in $Members) {
                     try {
+                        $memberEmail = $member
                         Invoke-SPOFactoryCommand -ScriptBlock {
-                            Add-PnPMicrosoft365GroupMember -Identity $groupResult.Id -Users $member
+                            Add-PnPMicrosoft365GroupMember -Identity $using:groupId -Users $using:memberEmail
                         } -ClientName $ClientName -Category 'Provisioning' -SuppressErrors
                     }
                     catch {

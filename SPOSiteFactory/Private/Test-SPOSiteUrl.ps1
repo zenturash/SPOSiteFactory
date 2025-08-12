@@ -359,6 +359,20 @@ function Test-SPOSiteUrlAvailability {
     }
 
     try {
+        # Check if we have a WebLogin connection (which has limited capabilities)
+        $isWebLogin = $false
+        if ($ClientName -and $script:SPOConnections -and $script:SPOConnections.ContainsKey($ClientName)) {
+            $connInfo = $script:SPOConnections[$ClientName]
+            $isWebLogin = ($connInfo.AuthMethod -eq 'WebLogin')
+        }
+        
+        if ($isWebLogin) {
+            # For WebLogin, we'll skip the availability check since it requires SharePoint context
+            Write-SPOFactoryLog -Message "Skipping URL availability check for WebLogin connection" -Level Debug -ClientName $ClientName -Category 'Provisioning'
+            $result.IsAvailable = $true  # Assume available - will fail at creation if not
+            return $result
+        }
+        
         # Use PnP PowerShell to check site existence
         $existingSite = Invoke-SPOFactoryCommand -ScriptBlock {
             Get-PnPSite -Identity $SiteUrl -ErrorAction SilentlyContinue

@@ -81,6 +81,9 @@ function Connect-SPOFactory {
         [Parameter(ParameterSetName = 'DeviceCode')]
         [switch]$DeviceCode,
         
+        [Parameter(ParameterSetName = 'WebLogin')]
+        [switch]$WebLogin,
+        
         [Parameter(ParameterSetName = 'Certificate')]
         [switch]$Certificate,
         
@@ -145,6 +148,64 @@ function Connect-SPOFactory {
     }
 
     process {
+        # Special handling for WebLogin - completely separate path
+        if ($WebLogin) {
+            try {
+                Write-SPOFactoryLog -Message "Using web login authentication (no ClientId required)" -Level Info -ClientName $ClientName
+                
+                # Connect using WebLogin
+                Connect-PnPOnline -Url $TenantUrl -UseWebLogin
+                $connection = Get-PnPConnection
+                
+                if (-not $connection) {
+                    throw "Failed to establish WebLogin connection"
+                }
+                
+                # Cache the connection without trying to get SharePoint context
+                $connectionInfo = @{
+                    ClientName = $ClientName
+                    TenantUrl = $TenantUrl
+                    AuthMethod = 'WebLogin'
+                    Connection = $connection
+                    Context = $null
+                    ConnectedAt = Get-Date
+                    ConnectedAs = "Admin User (WebLogin)"
+                    WebTitle = "SharePoint Admin Center"
+                    WebUrl = $TenantUrl
+                    SessionId = [guid]::NewGuid().ToString()
+                }
+                
+                $script:SPOConnections[$ClientName] = $connectionInfo
+                $script:CurrentSPOConnection = $ClientName
+                
+                # Log and display success
+                Write-SPOFactoryLog -Message "Successfully connected via WebLogin to $TenantUrl" -Level Info -ClientName $ClientName
+                Write-Host "`nSuccessfully connected to SharePoint Online" -ForegroundColor Green
+                Write-Host "  Tenant: $TenantUrl" -ForegroundColor Gray
+                Write-Host "  Client: $ClientName" -ForegroundColor Gray
+                Write-Host "  Method: WebLogin" -ForegroundColor Gray
+                Write-Host "  Session: $($connectionInfo.SessionId)" -ForegroundColor Gray
+                Write-Host "`nNote: WebLogin works for tenant admin commands (Get-PnPTenant, Get-PnPTenantSite, etc.)" -ForegroundColor Yellow
+                
+                return @{
+                    Success = $true
+                    ClientName = $ClientName
+                    TenantUrl = $TenantUrl
+                    AuthMethod = 'WebLogin'
+                    ConnectedAs = "Admin User"
+                    ConnectedAt = $connectionInfo.ConnectedAt
+                    SessionId = $connectionInfo.SessionId
+                    Message = "WebLogin connection established successfully"
+                }
+            }
+            catch {
+                Write-SPOFactoryLog -Message "WebLogin connection failed: $($_.Exception.Message)" -Level Error -ClientName $ClientName
+                Write-Host "`nWebLogin connection failed: $($_.Exception.Message)" -ForegroundColor Red
+                throw "Failed to connect via WebLogin: $($_.Exception.Message)"
+            }
+        }
+        
+        # Standard connection for non-WebLogin methods
         try {
             $connectionParams = @{
                 ReturnConnection = $true
@@ -167,10 +228,22 @@ function Connect-SPOFactory {
                 
                 'DeviceCode' {
                     Write-SPOFactoryLog -Message "Using device code authentication" -Level Info -ClientName $ClientName
-                    Write-Host "To sign in, use a web browser to open the page https://microsoft.com/devicelogin" -ForegroundColor Yellow
                     $connectionParams['Url'] = $TenantUrl
                     $connectionParams['DeviceLogin'] = $true
+                    
+                    # Add ClientId if provided for device code flow
+                    if ($PSBoundParameters.ContainsKey('ClientId')) {
+                        $connectionParams['ClientId'] = $ClientId
+                    }
+                    
                     'DeviceCode'
+                }
+                
+                'WebLogin' {
+                    Write-SPOFactoryLog -Message "Using web login authentication (no ClientId required)" -Level Info -ClientName $ClientName
+                    $connectionParams['Url'] = $TenantUrl
+                    $connectionParams['UseWebLogin'] = $true
+                    'WebLogin'
                 }
                 
                 'Certificate' {
@@ -232,17 +305,36 @@ function Connect-SPOFactory {
             
             # Establish connection
             Write-SPOFactoryLog -Message "Establishing connection to SharePoint Online..." -Level Info -ClientName $ClientName
-            $connection = Connect-PnPOnline @connectionParams
             
-            # Verify connection
-            $context = Get-PnPContext
-            if (-not $context) {
-                throw "Failed to establish PnP context"
+            # Different connection approaches based on auth method
+            if ($authMethod -eq 'DeviceCode' -or $authMethod -eq 'WebLogin') {
+                # DeviceCode and WebLogin don't support -ReturnConnection
+                Connect-PnPOnline @connectionParams
+                $connection = Get-PnPConnection
+            } else {
+                $connection = Connect-PnPOnline @connectionParams -ReturnConnection
             }
             
-            # Get additional connection info
-            $web = Get-PnPWeb -Includes Title, Url
-            $currentUser = Get-PnPProperty -ClientObject $context.Web -Property CurrentUser
+            # Verify connection and get context
+            if ($authMethod -eq 'WebLogin') {
+                # WebLogin creates a different type of connection
+                # It doesn't have immediate SharePoint context, but that's OK
+                if (-not $connection) {
+                    throw "Failed to establish connection"
+                }
+                # Don't try to get web info for WebLogin - it will fail
+                $context = $null
+                $web = @{ Title = "SharePoint Admin Center"; Url = $TenantUrl }
+                $currentUser = @{ Email = "Admin User (WebLogin)" }
+            } else {
+                # Standard verification for other auth methods
+                $context = Get-PnPContext
+                if (-not $context) {
+                    throw "Failed to establish PnP context"
+                }
+                $web = Get-PnPWeb -Includes Title, Url
+                $currentUser = Get-PnPProperty -ClientObject $context.Web -Property CurrentUser
+            }
             
             # Cache connection information
             $connectionInfo = @{
@@ -252,9 +344,9 @@ function Connect-SPOFactory {
                 Connection = $connection
                 Context = $context
                 ConnectedAt = Get-Date
-                ConnectedAs = $currentUser.Email
-                WebTitle = $web.Title
-                WebUrl = $web.Url
+                ConnectedAs = if ($currentUser.Email) { $currentUser.Email } else { "WebLogin User" }
+                WebTitle = if ($web.Title) { $web.Title } else { "SharePoint Admin" }
+                WebUrl = if ($web.Url) { $web.Url } else { $TenantUrl }
                 SessionId = [guid]::NewGuid().ToString()
             }
             
@@ -292,10 +384,18 @@ function Connect-SPOFactory {
         }
         catch {
             $errorMessage = $_.Exception.Message
-            Write-SPOFactoryLog -Message "Connection failed: $errorMessage" -Level Error -ClientName $ClientName -Exception $_
+            Write-SPOFactoryLog -Message "Connection failed: $errorMessage" -Level Error -ClientName $ClientName -Exception $_.Exception
             
             # Provide helpful error messages
             $helpMessage = switch -Regex ($errorMessage) {
+                'multi-tenant App Id|not available anymore' { @"
+You must register your own Azure AD app. Run:
+Register-PnPEntraIDApp -ApplicationName 'SPOSiteFactory' -Tenant 'yourtenant.onmicrosoft.com' -Interactive -Store CurrentUser -SharePointDelegatedPermissions 'AllSites.FullControl'
+
+Then use: Connect-SPOFactory -TenantUrl '$TenantUrl' -ClientName '$ClientName' -ClientId 'your-app-id' -Interactive
+"@
+                }
+                'Specified method is not supported' { "You need to provide a ClientId. Register an app first (see above)." }
                 'AADSTS50076' { "Multi-factor authentication is required. Use -Interactive or -DeviceCode parameter." }
                 'AADSTS700016' { "Application not found. Verify ClientId and app registration." }
                 'AADSTS70001' { "Application disabled. Contact your Azure AD administrator." }
