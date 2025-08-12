@@ -1,0 +1,370 @@
+{
+  "name": "HubSite",
+  "version": "1.0", 
+  "description": "Hub site template for connecting and organizing related sites in MSP environments",
+  "category": "Hub",
+  "templateType": "Hub",
+  "webTemplate": "SITEPAGEPUBLISHING#0",
+  "lastModified": "2025-01-12T00:00:00Z",
+  "author": "MSP PowerShell Team",
+  "siteConfiguration": {
+    "title": "Hub Site",
+    "description": "Connect and organize sites with shared navigation, theme, and content",
+    "language": 1033,
+    "template": "SITEPAGEPUBLISHING#0",
+    "timeZone": 13,
+    "storageQuota": 5120,
+    "resourceQuota": 500,
+    "locale": "en-US",
+    "siteDesign": "Topic"
+  },
+  "hubConfiguration": {
+    "enableHub": true,
+    "hubSiteLogoUrl": "",
+    "hubSiteTitle": "Hub Site",
+    "hubSiteDescription": "Central hub for connected sites and resources",
+    "associatedSiteCollectionIds": [],
+    "maxAssociatedSites": 100,
+    "enablePermissionSync": false,
+    "hideNameInNavigation": false
+  },
+  "sharingSettings": {
+    "sharingCapability": "ExternalUserSharingOnly",
+    "requestAccessEnabled": true,
+    "allowSelfServiceUpgrade": false,
+    "membersCanShare": false,
+    "guestsCanShare": false,
+    "defaultSharingLinkType": "Internal",
+    "defaultLinkPermission": "View",
+    "requireAnonymousLinksExpireInDays": 30
+  },
+  "securitySettings": {
+    "denyAddAndCustomizePages": false,
+    "allowDesignerForCurrentUser": false,
+    "allowRevertFromInheritance": true,
+    "allowMasterPageEditing": false,
+    "showUrlStructureForCurrentUser": false,
+    "limitedAccessFileType": "WebPreviewableFiles"
+  },
+  "features": {
+    "required": [
+      {
+        "id": "b6917cb1-93a0-4b97-a84d-7cf49975d4ec",
+        "name": "PublishingWeb",
+        "description": "SharePoint Server Publishing"
+      },
+      {
+        "id": "a392da98-270b-4e85-9769-04c0fde267aa",
+        "name": "PublishingSite", 
+        "description": "SharePoint Server Publishing Infrastructure"
+      }
+    ],
+    "optional": [
+      {
+        "id": "7201d6a4-a5d3-49a1-8c19-19c4bac6e668",
+        "name": "PublishingLayouts",
+        "description": "Publishing Layouts"
+      }
+    ]
+  },
+  "lists": [
+    {
+      "title": "Documents",
+      "description": "Document library for hub site resources",
+      "template": "DocumentLibrary",
+      "url": "Shared Documents",
+      "enableVersioning": true,
+      "majorVersionLimit": 100,
+      "enableContentTypes": true,
+      "defaultContentTypeId": "0x0101",
+      "permissions": "Inherit"
+    },
+    {
+      "title": "Site Directory",
+      "description": "Directory of associated sites and resources",
+      "template": "GenericList",
+      "url": "Lists/SiteDirectory",
+      "enableVersioning": false,
+      "enableContentTypes": true,
+      "columns": [
+        {
+          "name": "SiteTitle",
+          "displayName": "Site Title",
+          "type": "Text",
+          "required": true
+        },
+        {
+          "name": "SiteURL",
+          "displayName": "Site URL",
+          "type": "URL",
+          "required": true
+        },
+        {
+          "name": "SiteDescription",
+          "displayName": "Description",
+          "type": "Note",
+          "required": false
+        },
+        {
+          "name": "Category",
+          "displayName": "Category",
+          "type": "Choice",
+          "choices": ["Team Site", "Communication Site", "Document Center", "Project Site"],
+          "required": true
+        },
+        {
+          "name": "Owner",
+          "displayName": "Site Owner",
+          "type": "User",
+          "required": true
+        }
+      ],
+      "permissions": "Inherit"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "url": "SitePages/Home.aspx",
+      "layout": "Home",
+      "isHomePage": true,
+      "webParts": [
+        {
+          "type": "Hero",
+          "title": "Hero",
+          "zone": "Header",
+          "order": 1,
+          "properties": {
+            "layoutType": "TwoItems",
+            "callToActionText": "Explore",
+            "callToActionUrl": ""
+          }
+        },
+        {
+          "type": "QuickLinks",
+          "title": "Hub Resources",
+          "zone": "VerticalSection",
+          "order": 1,
+          "properties": {
+            "layoutType": "Grid",
+            "links": [
+              {
+                "title": "Site Directory",
+                "url": "/Lists/SiteDirectory/AllItems.aspx"
+              },
+              {
+                "title": "Documents",
+                "url": "/Shared Documents"
+              },
+              {
+                "title": "News",
+                "url": "/SitePages/Forms/ByAuthor.aspx"
+              }
+            ]
+          }
+        },
+        {
+          "type": "Sites",
+          "title": "Associated Sites",
+          "zone": "VerticalSection",
+          "order": 2,
+          "properties": {
+            "layoutType": "Grid",
+            "source": "AssociatedSites"
+          }
+        },
+        {
+          "type": "News",
+          "title": "Hub News",
+          "zone": "VerticalSection",
+          "order": 3,
+          "properties": {
+            "layoutType": "SideBySide",
+            "showAuthor": true,
+            "showDate": true,
+            "newsDataSourceType": "Hub"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Site Directory",
+      "url": "SitePages/Sites.aspx",
+      "layout": "Article",
+      "isHomePage": false,
+      "webParts": [
+        {
+          "type": "List",
+          "title": "All Sites",
+          "zone": "VerticalSection",
+          "order": 1,
+          "properties": {
+            "listId": "SiteDirectory",
+            "viewId": "AllItems"
+          }
+        }
+      ]
+    }
+  ],
+  "navigation": {
+    "enableTopNavigation": true,
+    "enableQuickLaunch": true,
+    "enableMegaMenu": true,
+    "hubNavigation": {
+      "enabled": true,
+      "nodes": [
+        {
+          "title": "Home",
+          "url": "/",
+          "isExternal": false,
+          "openInNewWindow": false
+        },
+        {
+          "title": "Sites",
+          "url": "/SitePages/Sites.aspx",
+          "isExternal": false,
+          "openInNewWindow": false
+        },
+        {
+          "title": "Documents",
+          "url": "/Shared Documents/Forms/AllItems.aspx",
+          "isExternal": false,
+          "openInNewWindow": false
+        },
+        {
+          "title": "News",
+          "url": "/SitePages/Forms/ByAuthor.aspx",
+          "isExternal": false,
+          "openInNewWindow": false
+        }
+      ]
+    },
+    "topNavigationNodes": [
+      {
+        "title": "Home",
+        "url": "/",
+        "isExternal": false
+      },
+      {
+        "title": "Sites",
+        "url": "/SitePages/Sites.aspx",
+        "isExternal": false
+      }
+    ],
+    "quickLaunchNodes": [
+      {
+        "title": "Home",
+        "url": "/",
+        "isExternal": false
+      },
+      {
+        "title": "Site Directory",
+        "url": "/Lists/SiteDirectory/AllItems.aspx",
+        "isExternal": false
+      },
+      {
+        "title": "Documents", 
+        "url": "/Shared Documents/Forms/AllItems.aspx",
+        "isExternal": false
+      }
+    ]
+  },
+  "permissions": {
+    "groups": [
+      {
+        "name": "Hub Site Owners",
+        "description": "Use this group to grant people full control permissions to the SharePoint site",
+        "permissionLevel": "Full Control",
+        "type": "Owner"
+      },
+      {
+        "name": "Hub Site Members",
+        "description": "Use this group to grant people contribute permissions to the SharePoint site",
+        "permissionLevel": "Contribute", 
+        "type": "Member"
+      },
+      {
+        "name": "Hub Site Visitors",
+        "description": "Use this group to grant people read permissions to the SharePoint site",
+        "permissionLevel": "Read",
+        "type": "Visitor"
+      }
+    ]
+  },
+  "customization": {
+    "theme": {
+      "palette": "Green",
+      "isInverted": false
+    },
+    "logo": {
+      "type": "Default",
+      "url": ""
+    },
+    "headerLayout": "Extended",
+    "headerEmphasis": "Strong",
+    "headerBackground": "Default",
+    "navigationEmphasis": "Strong"
+  },
+  "associatedSiteTemplates": [
+    "TeamSite",
+    "CommunicationSite"
+  ],
+  "governance": {
+    "siteCreationPermissions": ["Owners"],
+    "requireApprovalForAssociation": true,
+    "maxAssociatedSites": 100,
+    "enableAutoAssociation": false,
+    "associationRules": [
+      {
+        "condition": "SiteTemplate == 'TeamSite'",
+        "autoAssociate": true
+      },
+      {
+        "condition": "SiteOwner in HubOwners",
+        "autoAssociate": true
+      }
+    ]
+  },
+  "validationRules": {
+    "requiredProperties": [
+      "title",
+      "template", 
+      "language"
+    ],
+    "allowedTemplates": [
+      "SITEPAGEPUBLISHING#0"
+    ],
+    "storageQuotaLimits": {
+      "minimum": 1000,
+      "maximum": 25000
+    },
+    "hubSpecificValidation": {
+      "maxAssociatedSites": 100,
+      "requireUniqueHubTitle": true
+    }
+  },
+  "deploymentSettings": {
+    "waitForProvisioning": true,
+    "timeoutMinutes": 20,
+    "retryAttempts": 3,
+    "validateAfterCreation": true,
+    "enableDiagnostics": true,
+    "postProvisioningActions": [
+      "RegisterHubSite",
+      "ConfigureHubNavigation",
+      "SetupSiteDirectory",
+      "ConfigureTheme"
+    ]
+  },
+  "metadata": {
+    "useCase": "Central hub for organizing and connecting related sites",
+    "targetAudience": "Department or division-wide organization",
+    "maintenanceComplexity": "High",
+    "customizationLevel": "Advanced",
+    "recommendedBaseline": "MSPStandard",
+    "supportedRegions": ["Global", "GCC"],
+    "estimatedProvisioningTime": "5-15 minutes",
+    "requiredFeatures": ["Publishing", "Hub Sites", "Modern Pages"],
+    "maxAssociatedSites": 100
+  }
+}

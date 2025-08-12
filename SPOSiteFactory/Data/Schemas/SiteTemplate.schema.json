@@ -1,0 +1,528 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.spositefactory.com/site-template.schema.json",
+  "title": "SPOSiteFactory Site Template Schema",
+  "description": "Schema for validating SharePoint Online site templates in MSP environments",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Template version in semver format"
+    },
+    "description": {
+      "type": "string",
+      "description": "Template description",
+      "maxLength": 500
+    },
+    "category": {
+      "type": "string",
+      "enum": ["Collaboration", "Communication", "Hub", "Project", "Knowledge", "Custom"],
+      "description": "Template category"
+    },
+    "templateType": {
+      "type": "string",
+      "enum": ["SiteCollection", "SubSite", "Hub"],
+      "description": "Type of template"
+    },
+    "webTemplate": {
+      "type": "string",
+      "description": "SharePoint web template ID"
+    },
+    "lastModified": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last modification date"
+    },
+    "author": {
+      "type": "string",
+      "description": "Template author"
+    },
+    "siteConfiguration": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "language": {
+          "type": "integer",
+          "minimum": 1025,
+          "maximum": 3082
+        },
+        "template": {
+          "type": "string"
+        },
+        "timeZone": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 76
+        },
+        "storageQuota": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 25000
+        },
+        "resourceQuota": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2}-[A-Z]{2}$"
+        }
+      },
+      "required": ["title", "template", "language"],
+      "additionalProperties": true
+    },
+    "sharingSettings": {
+      "type": "object",
+      "properties": {
+        "sharingCapability": {
+          "type": "string",
+          "enum": ["Disabled", "ExistingExternalUserSharingOnly", "ExternalUserSharingOnly", "ExternalUserAndGuestSharing"]
+        },
+        "requestAccessEnabled": {
+          "type": "boolean"
+        },
+        "allowSelfServiceUpgrade": {
+          "type": "boolean"
+        },
+        "membersCanShare": {
+          "type": "boolean"
+        },
+        "guestsCanShare": {
+          "type": "boolean"
+        },
+        "defaultSharingLinkType": {
+          "type": "string",
+          "enum": ["None", "AnonymousAccess", "Internal", "Direct"]
+        },
+        "defaultLinkPermission": {
+          "type": "string",
+          "enum": ["None", "View", "Edit"]
+        },
+        "requireAnonymousLinksExpireInDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        }
+      },
+      "additionalProperties": true
+    },
+    "securitySettings": {
+      "type": "object",
+      "properties": {
+        "denyAddAndCustomizePages": {
+          "type": "boolean"
+        },
+        "allowDesignerForCurrentUser": {
+          "type": "boolean"
+        },
+        "allowRevertFromInheritance": {
+          "type": "boolean"
+        },
+        "allowMasterPageEditing": {
+          "type": "boolean"
+        },
+        "showUrlStructureForCurrentUser": {
+          "type": "boolean"
+        },
+        "limitedAccessFileType": {
+          "type": "string",
+          "enum": ["OfficeOnlineFilesOnly", "WebPreviewableFiles", "OtherFiles"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"]
+          }
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"]
+          }
+        }
+      }
+    },
+    "lists": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "template": {
+            "type": "string",
+            "enum": ["DocumentLibrary", "GenericList", "Tasks", "Events", "Announcements", "Contacts", "DiscussionBoard", "Links", "PictureLibrary", "Survey", "IssueTracking", "WebPageLibrary"]
+          },
+          "url": {
+            "type": "string"
+          },
+          "enableVersioning": {
+            "type": "boolean"
+          },
+          "majorVersionLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50000
+          },
+          "enableContentTypes": {
+            "type": "boolean"
+          },
+          "defaultContentTypeId": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "string",
+            "enum": ["Inherit", "Unique"]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Text", "Note", "Number", "Currency", "DateTime", "Choice", "Lookup", "Boolean", "User", "URL", "Calculated"]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "choices": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": ["name", "displayName", "type"]
+            }
+          }
+        },
+        "required": ["title", "template", "url"]
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "layout": {
+            "type": "string",
+            "enum": ["Article", "Home", "SingleWebPartAppPage", "RepostPage", "HeaderlessSearchResults", "Spaces"]
+          },
+          "isHomePage": {
+            "type": "boolean"
+          },
+          "webParts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "zone": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "properties": {
+                  "type": "object"
+                }
+              },
+              "required": ["type", "zone", "order"]
+            }
+          }
+        },
+        "required": ["title", "url", "layout"]
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "properties": {
+        "enableTopNavigation": {
+          "type": "boolean"
+        },
+        "enableQuickLaunch": {
+          "type": "boolean"
+        },
+        "enableMegaMenu": {
+          "type": "boolean"
+        },
+        "topNavigationNodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "isExternal": {
+                "type": "boolean"
+              }
+            },
+            "required": ["title", "url"]
+          }
+        },
+        "quickLaunchNodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "isExternal": {
+                "type": "boolean"
+              }
+            },
+            "required": ["title", "url"]
+          }
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "permissionLevel": {
+                "type": "string",
+                "enum": ["Full Control", "Design", "Contribute", "Read", "Limited Access", "View Only"]
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Owner", "Member", "Visitor"]
+              }
+            },
+            "required": ["name", "permissionLevel", "type"]
+          }
+        }
+      }
+    },
+    "customization": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "type": "object",
+          "properties": {
+            "palette": {
+              "type": "string"
+            },
+            "isInverted": {
+              "type": "boolean"
+            }
+          }
+        },
+        "logo": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["Default", "Custom"]
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        },
+        "headerLayout": {
+          "type": "string",
+          "enum": ["Standard", "Compact", "Minimal", "Extended"]
+        },
+        "headerEmphasis": {
+          "type": "string",
+          "enum": ["None", "Neutral", "Soft", "Strong"]
+        }
+      }
+    },
+    "validationRules": {
+      "type": "object",
+      "properties": {
+        "requiredProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedTemplates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "storageQuotaLimits": {
+          "type": "object",
+          "properties": {
+            "minimum": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maximum": {
+              "type": "integer",
+              "maximum": 25000
+            }
+          }
+        }
+      }
+    },
+    "deploymentSettings": {
+      "type": "object",
+      "properties": {
+        "waitForProvisioning": {
+          "type": "boolean"
+        },
+        "timeoutMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "retryAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "validateAfterCreation": {
+          "type": "boolean"
+        },
+        "enableDiagnostics": {
+          "type": "boolean"
+        },
+        "postProvisioningActions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "useCase": {
+          "type": "string"
+        },
+        "targetAudience": {
+          "type": "string"
+        },
+        "maintenanceComplexity": {
+          "type": "string",
+          "enum": ["Low", "Medium", "High"]
+        },
+        "customizationLevel": {
+          "type": "string",
+          "enum": ["Standard", "Advanced", "Expert"]
+        },
+        "recommendedBaseline": {
+          "type": "string"
+        },
+        "supportedRegions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Global", "GCC", "GCCH", "DoD", "Germany", "China"]
+          }
+        },
+        "estimatedProvisioningTime": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "description",
+    "category",
+    "templateType",
+    "webTemplate",
+    "siteConfiguration"
+  ],
+  "additionalProperties": false
+}

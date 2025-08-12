@@ -1,0 +1,102 @@
+{
+  "name": "MSPSecure",
+  "version": "1.0",
+  "description": "High-security baseline for MSP clients requiring enhanced protection",
+  "category": "Security",
+  "applicableRegions": ["Global", "GCC", "GCCH"],
+  "lastModified": "2025-01-12T00:00:00Z",
+  "author": "MSP PowerShell Team",
+  "tenantSettings": {
+    "sharingCapability": "Disabled",
+    "defaultSharingLinkType": "Internal",
+    "preventExternalUsersFromResharing": true,
+    "requireAnonymousLinksExpireInDays": 7,
+    "fileAnonymousLinkType": "None",
+    "folderAnonymousLinkType": "None",
+    "externalUserExpirationRequired": true,
+    "externalUserExpireInDays": 30,
+    "conditionalAccessPolicy": "BlockAccess",
+    "denyAddAndCustomizePages": true,
+    "publicCdnEnabled": false,
+    "allowedDomainListForSyncClient": [],
+    "blockedDomainListForSyncClient": ["*"]
+  },
+  "siteSettings": {
+    "denyAddAndCustomizePages": true,
+    "defaultSharingLinkType": "Internal",
+    "sharingCapability": "Disabled",
+    "requestAccessEnabled": false,
+    "membersCanShare": false,
+    "guestsCanShare": false,
+    "allowSelfServiceUpgrade": false,
+    "restrictedToGeo": true
+  },
+  "securitySettings": {
+    "enableAuditLog": true,
+    "enableDLP": true,
+    "enableATP": true,
+    "blockDownloadOfNonViewableFiles": true,
+    "blockDownloadLinksFileType": "ServerRenderedFilesOnly",
+    "allowCommentsTextOnEmailEnabled": false,
+    "allowGuestUserShareToUsersNotInSiteCollection": false,
+    "allowLimitedAccessOnUnmanagedDevices": false,
+    "conditionalAccessPolicyErrorHelpLink": "",
+    "emailAttestationRequired": true,
+    "emailAttestationReAuthDays": 15,
+    "blockAccessOnUnmanagedDevices": true,
+    "requireMultiFactorAuthentication": true,
+    "allowDownloadingNonWebViewableFiles": false
+  },
+  "complianceSettings": {
+    "informationBarriersImplicitGroupBasedMembership": true,
+    "isResharingByExternalUsersEnabled": false,
+    "isDataLocationSameAsRegion": true,
+    "enableAIPIntegration": true,
+    "defaultContentCenterSite": "",
+    "contentTypeSyncSiteTemplatesList": [],
+    "requireSiteClassification": true,
+    "defaultSiteClassification": "Confidential"
+  },
+  "governanceSettings": {
+    "retentionPolicyEnabled": true,
+    "defaultRetentionDays": 3650,
+    "lifecyclePolicyEnabled": true,
+    "inactivityThresholdDays": 180,
+    "orphanedSiteRetentionDays": 90,
+    "siteCreationControlEnabled": true,
+    "allowedSiteCreators": ["GlobalAdmins"],
+    "requireSiteClassification": true,
+    "defaultSiteClassification": "Confidential",
+    "enforceAppOnlyPolicy": true,
+    "legacyAuthProtocolsEnabled": false
+  },
+  "validationRules": {
+    "requiredSettings": [
+      "sharingCapability",
+      "defaultSharingLinkType",
+      "blockDownloadOfNonViewableFiles",
+      "denyAddAndCustomizePages",
+      "emailAttestationRequired"
+    ],
+    "blockedSettings": [
+      "publicCdnEnabled",
+      "allowGuestUserShareToUsersNotInSiteCollection",
+      "allowLimitedAccessOnUnmanagedDevices"
+    ],
+    "warningSettings": {
+      "externalUserExpireInDays": {
+        "condition": "> 30",
+        "warning": "External user expiration exceeds secure baseline recommendation"
+      }
+    }
+  },
+  "metadata": {
+    "msaComplianceLevel": "High",
+    "recommendedForIndustries": ["Financial", "Healthcare", "Legal", "Government"],
+    "riskLevel": "Low",
+    "implementationComplexity": "High",
+    "maintenanceRequired": "Weekly",
+    "auditFrequency": "Monthly",
+    "certificationCompliance": ["SOC2", "HIPAA", "ISO27001"]
+  }
+}

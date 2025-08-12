@@ -1,0 +1,279 @@
+{
+  "name": "CommunicationSite",
+  "version": "1.0",
+  "description": "Communication site template for broadcasting information in MSP environments",
+  "category": "Communication",
+  "templateType": "SiteCollection",
+  "webTemplate": "SITEPAGEPUBLISHING#0",
+  "lastModified": "2025-01-12T00:00:00Z",
+  "author": "MSP PowerShell Team",
+  "siteConfiguration": {
+    "title": "Communication Site",
+    "description": "Share news, reports, statuses, and other information in a visually compelling format",
+    "language": 1033,
+    "template": "SITEPAGEPUBLISHING#0",
+    "timeZone": 13,
+    "storageQuota": 2048,
+    "resourceQuota": 300,
+    "locale": "en-US",
+    "siteDesign": "Topic"
+  },
+  "sharingSettings": {
+    "sharingCapability": "ExternalUserSharingOnly",
+    "requestAccessEnabled": true,
+    "allowSelfServiceUpgrade": false,
+    "membersCanShare": false,
+    "guestsCanShare": false,
+    "defaultSharingLinkType": "Internal",
+    "defaultLinkPermission": "View",
+    "requireAnonymousLinksExpireInDays": 30
+  },
+  "securitySettings": {
+    "denyAddAndCustomizePages": false,
+    "allowDesignerForCurrentUser": false,
+    "allowRevertFromInheritance": true,
+    "allowMasterPageEditing": false,
+    "showUrlStructureForCurrentUser": false,
+    "limitedAccessFileType": "WebPreviewableFiles"
+  },
+  "features": {
+    "required": [
+      {
+        "id": "b6917cb1-93a0-4b97-a84d-7cf49975d4ec",
+        "name": "PublishingWeb",
+        "description": "SharePoint Server Publishing"
+      },
+      {
+        "id": "a392da98-270b-4e85-9769-04c0fde267aa",
+        "name": "PublishingSite",
+        "description": "SharePoint Server Publishing Infrastructure"
+      }
+    ],
+    "optional": [
+      {
+        "id": "7201d6a4-a5d3-49a1-8c19-19c4bac6e668",
+        "name": "PublishingLayouts",
+        "description": "Publishing Layouts"
+      }
+    ]
+  },
+  "lists": [
+    {
+      "title": "Documents",
+      "description": "Document library for communication site assets",
+      "template": "DocumentLibrary",
+      "url": "Shared Documents",
+      "enableVersioning": true,
+      "majorVersionLimit": 100,
+      "enableContentTypes": true,
+      "defaultContentTypeId": "0x0101",
+      "permissions": "Inherit"
+    },
+    {
+      "title": "Site Pages",
+      "description": "System library for site pages",
+      "template": "WebPageLibrary",
+      "url": "SitePages",
+      "enableVersioning": true,
+      "majorVersionLimit": 50,
+      "enableContentTypes": true,
+      "permissions": "Inherit"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "url": "SitePages/Home.aspx",
+      "layout": "Home",
+      "isHomePage": true,
+      "webParts": [
+        {
+          "type": "Hero",
+          "title": "Hero",
+          "zone": "Header",
+          "order": 1,
+          "properties": {
+            "layoutType": "FiveItems",
+            "callToActionText": "Read more",
+            "callToActionUrl": ""
+          }
+        },
+        {
+          "type": "News",
+          "title": "News",
+          "zone": "VerticalSection",
+          "order": 1,
+          "properties": {
+            "layoutType": "SideBySide",
+            "showAuthor": true,
+            "showDate": true,
+            "newsDataSourceType": "CurrentSite"
+          }
+        },
+        {
+          "type": "QuickLinks",
+          "title": "Quick Links",
+          "zone": "VerticalSection",
+          "order": 2,
+          "properties": {
+            "layoutType": "Grid",
+            "links": [
+              {
+                "title": "Documents",
+                "url": "/Shared Documents"
+              },
+              {
+                "title": "Site Contents",
+                "url": "/_layouts/15/viewlsts.aspx"
+              }
+            ]
+          }
+        },
+        {
+          "type": "Events",
+          "title": "Upcoming Events",
+          "zone": "VerticalSection",
+          "order": 3,
+          "properties": {
+            "layoutType": "Compact",
+            "maxEvents": 5
+          }
+        }
+      ]
+    }
+  ],
+  "navigation": {
+    "enableTopNavigation": true,
+    "enableQuickLaunch": true,
+    "enableMegaMenu": true,
+    "topNavigationNodes": [
+      {
+        "title": "Home",
+        "url": "/",
+        "isExternal": false
+      },
+      {
+        "title": "News",
+        "url": "/SitePages/Forms/ByAuthor.aspx",
+        "isExternal": false
+      }
+    ],
+    "quickLaunchNodes": [
+      {
+        "title": "Home",
+        "url": "/",
+        "isExternal": false
+      },
+      {
+        "title": "Documents",
+        "url": "/Shared Documents/Forms/AllItems.aspx",
+        "isExternal": false
+      },
+      {
+        "title": "Pages",
+        "url": "/SitePages/Forms/ByAuthor.aspx",
+        "isExternal": false
+      }
+    ]
+  },
+  "permissions": {
+    "groups": [
+      {
+        "name": "Communication Site Owners",
+        "description": "Use this group to grant people full control permissions to the SharePoint site",
+        "permissionLevel": "Full Control",
+        "type": "Owner"
+      },
+      {
+        "name": "Communication Site Members",
+        "description": "Use this group to grant people contribute permissions to the SharePoint site",
+        "permissionLevel": "Contribute",
+        "type": "Member"
+      },
+      {
+        "name": "Communication Site Visitors",
+        "description": "Use this group to grant people read permissions to the SharePoint site",
+        "permissionLevel": "Read",
+        "type": "Visitor"
+      }
+    ]
+  },
+  "customization": {
+    "theme": {
+      "palette": "Blue",
+      "isInverted": false
+    },
+    "logo": {
+      "type": "Default",
+      "url": ""
+    },
+    "headerLayout": "Standard",
+    "headerEmphasis": "Strong",
+    "headerBackground": "Default",
+    "navigationEmphasis": "Strong"
+  },
+  "contentTypes": [
+    {
+      "name": "News Article",
+      "id": "0x010100C568DB52D9D0A14D9B2FDCC96666E9F2007948130EC3DB064584E219954237AF3900242457EFB8B24247815D688C526CD44D",
+      "description": "Create an article to share news or information",
+      "group": "Publishing Content Types",
+      "fields": [
+        {
+          "internalName": "Title",
+          "displayName": "Title",
+          "type": "Text",
+          "required": true
+        },
+        {
+          "internalName": "ArticleByLine",
+          "displayName": "Article By Line",
+          "type": "Text",
+          "required": false
+        },
+        {
+          "internalName": "ArticleStartDate",
+          "displayName": "Article Date",
+          "type": "DateTime",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "validationRules": {
+    "requiredProperties": [
+      "title",
+      "template",
+      "language"
+    ],
+    "allowedTemplates": [
+      "SITEPAGEPUBLISHING#0"
+    ],
+    "storageQuotaLimits": {
+      "minimum": 500,
+      "maximum": 25000
+    }
+  },
+  "deploymentSettings": {
+    "waitForProvisioning": true,
+    "timeoutMinutes": 15,
+    "retryAttempts": 3,
+    "validateAfterCreation": true,
+    "enableDiagnostics": true,
+    "postProvisioningActions": [
+      "ConfigureNewsWebPart",
+      "SetupDefaultPages",
+      "ConfigureNavigation"
+    ]
+  },
+  "metadata": {
+    "useCase": "Broadcasting news, announcements, and information",
+    "targetAudience": "Organization-wide communication",
+    "maintenanceComplexity": "Medium",
+    "customizationLevel": "Advanced",
+    "recommendedBaseline": "MSPStandard",
+    "supportedRegions": ["Global", "GCC"],
+    "estimatedProvisioningTime": "3-8 minutes",
+    "requiredFeatures": ["Publishing", "Modern Pages"]
+  }
+}

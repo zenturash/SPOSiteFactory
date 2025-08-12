@@ -1,0 +1,372 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.spositefactory.com/baseline.schema.json",
+  "title": "SPOSiteFactory Baseline Schema",
+  "description": "Schema for validating SharePoint Online security baselines in MSP environments",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Baseline name",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Baseline version in semver format"
+    },
+    "description": {
+      "type": "string",
+      "description": "Baseline description",
+      "maxLength": 500
+    },
+    "category": {
+      "type": "string",
+      "enum": ["Security", "Compliance", "Governance", "Performance"],
+      "description": "Baseline category"
+    },
+    "applicableRegions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["Global", "GCC", "GCCH", "DoD", "Germany", "China"]
+      },
+      "description": "Regions where this baseline can be applied"
+    },
+    "lastModified": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last modification date"
+    },
+    "author": {
+      "type": "string",
+      "description": "Baseline author"
+    },
+    "tenantSettings": {
+      "type": "object",
+      "properties": {
+        "sharingCapability": {
+          "type": "string",
+          "enum": ["Disabled", "ExistingExternalUserSharingOnly", "ExternalUserSharingOnly", "ExternalUserAndGuestSharing"]
+        },
+        "defaultSharingLinkType": {
+          "type": "string",
+          "enum": ["None", "AnonymousAccess", "Internal", "Direct"]
+        },
+        "preventExternalUsersFromResharing": {
+          "type": "boolean"
+        },
+        "requireAnonymousLinksExpireInDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        },
+        "fileAnonymousLinkType": {
+          "type": "string",
+          "enum": ["None", "View", "Edit"]
+        },
+        "folderAnonymousLinkType": {
+          "type": "string",
+          "enum": ["None", "View", "Edit"]
+        },
+        "externalUserExpirationRequired": {
+          "type": "boolean"
+        },
+        "externalUserExpireInDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        },
+        "conditionalAccessPolicy": {
+          "type": "string",
+          "enum": ["AllowFullAccess", "AllowLimitedAccess", "BlockAccess"]
+        },
+        "denyAddAndCustomizePages": {
+          "type": "boolean"
+        },
+        "publicCdnEnabled": {
+          "type": "boolean"
+        },
+        "allowedDomainListForSyncClient": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blockedDomainListForSyncClient": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "siteSettings": {
+      "type": "object",
+      "properties": {
+        "denyAddAndCustomizePages": {
+          "type": "boolean"
+        },
+        "defaultSharingLinkType": {
+          "type": "string",
+          "enum": ["None", "AnonymousAccess", "Internal", "Direct"]
+        },
+        "sharingCapability": {
+          "type": "string",
+          "enum": ["Disabled", "ExistingExternalUserSharingOnly", "ExternalUserSharingOnly", "ExternalUserAndGuestSharing"]
+        },
+        "requestAccessEnabled": {
+          "type": "boolean"
+        },
+        "membersCanShare": {
+          "type": "boolean"
+        },
+        "guestsCanShare": {
+          "type": "boolean"
+        },
+        "allowSelfServiceUpgrade": {
+          "type": "boolean"
+        },
+        "restrictedToGeo": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "securitySettings": {
+      "type": "object",
+      "properties": {
+        "enableAuditLog": {
+          "type": "boolean"
+        },
+        "enableDLP": {
+          "type": "boolean"
+        },
+        "enableATP": {
+          "type": "boolean"
+        },
+        "blockDownloadOfNonViewableFiles": {
+          "type": "boolean"
+        },
+        "blockDownloadLinksFileType": {
+          "type": "string",
+          "enum": ["WebPreviewableFiles", "ServerRenderedFilesOnly", "OfficeOnlineFilesOnly", "OtherFiles"]
+        },
+        "allowCommentsTextOnEmailEnabled": {
+          "type": "boolean"
+        },
+        "allowGuestUserShareToUsersNotInSiteCollection": {
+          "type": "boolean"
+        },
+        "allowLimitedAccessOnUnmanagedDevices": {
+          "type": "boolean"
+        },
+        "conditionalAccessPolicyErrorHelpLink": {
+          "type": "string"
+        },
+        "emailAttestationRequired": {
+          "type": "boolean"
+        },
+        "emailAttestationReAuthDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        },
+        "blockAccessOnUnmanagedDevices": {
+          "type": "boolean"
+        },
+        "requireMultiFactorAuthentication": {
+          "type": "boolean"
+        },
+        "allowDownloadingNonWebViewableFiles": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "complianceSettings": {
+      "type": "object",
+      "properties": {
+        "informationBarriersImplicitGroupBasedMembership": {
+          "type": "boolean"
+        },
+        "isResharingByExternalUsersEnabled": {
+          "type": "boolean"
+        },
+        "isDataLocationSameAsRegion": {
+          "type": "boolean"
+        },
+        "enableAIPIntegration": {
+          "type": "boolean"
+        },
+        "defaultContentCenterSite": {
+          "type": "string"
+        },
+        "contentTypeSyncSiteTemplatesList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requireSiteClassification": {
+          "type": "boolean"
+        },
+        "defaultSiteClassification": {
+          "type": "string",
+          "enum": ["Public", "Internal", "Confidential", "Highly Confidential"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "governanceSettings": {
+      "type": "object",
+      "properties": {
+        "retentionPolicyEnabled": {
+          "type": "boolean"
+        },
+        "defaultRetentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "lifecyclePolicyEnabled": {
+          "type": "boolean"
+        },
+        "inactivityThresholdDays": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3650
+        },
+        "orphanedSiteRetentionDays": {
+          "type": "integer",
+          "minimum": 30,
+          "maximum": 3650
+        },
+        "siteCreationControlEnabled": {
+          "type": "boolean"
+        },
+        "allowedSiteCreators": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Everyone", "Owners", "GlobalAdmins"]
+          }
+        },
+        "requireSiteClassification": {
+          "type": "boolean"
+        },
+        "defaultSiteClassification": {
+          "type": "string"
+        },
+        "enforceAppOnlyPolicy": {
+          "type": "boolean"
+        },
+        "legacyAuthProtocolsEnabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "validationRules": {
+      "type": "object",
+      "properties": {
+        "requiredSettings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Settings that must be present"
+        },
+        "blockedSettings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Settings that must not be enabled"
+        },
+        "conflictSettings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "conflictsWith": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "warningSettings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "type": "string"
+              },
+              "warning": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "msaComplianceLevel": {
+          "type": "string",
+          "enum": ["Basic", "Standard", "High", "Critical"]
+        },
+        "recommendedForIndustries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "riskLevel": {
+          "type": "string",
+          "enum": ["Very Low", "Low", "Medium", "High", "Very High"]
+        },
+        "implementationComplexity": {
+          "type": "string",
+          "enum": ["Very Low", "Low", "Medium", "High", "Very High"]
+        },
+        "maintenanceRequired": {
+          "type": "string",
+          "enum": ["None", "Monthly", "Weekly", "Daily"]
+        },
+        "auditFrequency": {
+          "type": "string",
+          "enum": ["Annually", "Quarterly", "Monthly", "Weekly"]
+        },
+        "certificationCompliance": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["SOC1", "SOC2", "HIPAA", "PCI-DSS", "ISO27001", "GDPR", "CCPA", "FISMA", "FedRAMP"]
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "name",
+    "version", 
+    "description",
+    "category",
+    "applicableRegions",
+    "tenantSettings"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,94 @@
+{
+  "name": "MSPStandard",
+  "version": "1.0",
+  "description": "Standard security baseline for MSP-managed SharePoint Online tenants",
+  "category": "Security",
+  "applicableRegions": ["Global", "GCC"],
+  "lastModified": "2025-01-12T00:00:00Z",
+  "author": "MSP PowerShell Team",
+  "tenantSettings": {
+    "sharingCapability": "ExternalUserSharingOnly",
+    "defaultSharingLinkType": "Internal",
+    "preventExternalUsersFromResharing": true,
+    "requireAnonymousLinksExpireInDays": 30,
+    "fileAnonymousLinkType": "View",
+    "folderAnonymousLinkType": "View",
+    "externalUserExpirationRequired": true,
+    "externalUserExpireInDays": 90,
+    "conditionalAccessPolicy": "AllowFullAccess",
+    "denyAddAndCustomizePages": true,
+    "publicCdnEnabled": false,
+    "allowedDomainListForSyncClient": [],
+    "blockedDomainListForSyncClient": ["*"]
+  },
+  "siteSettings": {
+    "denyAddAndCustomizePages": true,
+    "defaultSharingLinkType": "Internal",
+    "sharingCapability": "ExternalUserSharingOnly",
+    "requestAccessEnabled": true,
+    "membersCanShare": false,
+    "guestsCanShare": false,
+    "allowSelfServiceUpgrade": false,
+    "restrictedToGeo": false
+  },
+  "securitySettings": {
+    "enableAuditLog": true,
+    "enableDLP": true,
+    "enableATP": true,
+    "blockDownloadOfNonViewableFiles": true,
+    "blockDownloadLinksFileType": "WebPreviewableFiles",
+    "allowCommentsTextOnEmailEnabled": false,
+    "allowGuestUserShareToUsersNotInSiteCollection": false,
+    "allowLimitedAccessOnUnmanagedDevices": true,
+    "conditionalAccessPolicyErrorHelpLink": "",
+    "emailAttestationRequired": true,
+    "emailAttestationReAuthDays": 30
+  },
+  "complianceSettings": {
+    "informationBarriersImplicitGroupBasedMembership": false,
+    "isResharingByExternalUsersEnabled": false,
+    "isDataLocationSameAsRegion": true,
+    "enableAIPIntegration": true,
+    "defaultContentCenterSite": "",
+    "contentTypeSyncSiteTemplatesList": []
+  },
+  "governanceSettings": {
+    "retentionPolicyEnabled": true,
+    "defaultRetentionDays": 2555,
+    "lifecyclePolicyEnabled": true,
+    "inactivityThresholdDays": 365,
+    "orphanedSiteRetentionDays": 180,
+    "siteCreationControlEnabled": true,
+    "allowedSiteCreators": ["Owners"],
+    "requireSiteClassification": true,
+    "defaultSiteClassification": "Internal"
+  },
+  "validationRules": {
+    "requiredSettings": [
+      "sharingCapability",
+      "defaultSharingLinkType",
+      "requireAnonymousLinksExpireInDays",
+      "denyAddAndCustomizePages"
+    ],
+    "conflictSettings": {
+      "publicCdnEnabled": {
+        "conflictsWith": ["restrictedToGeo"],
+        "reason": "Public CDN may conflict with geo restrictions"
+      }
+    },
+    "warningSettings": {
+      "externalUserExpireInDays": {
+        "condition": "> 180",
+        "warning": "External user expiration period is longer than recommended for MSP environments"
+      }
+    }
+  },
+  "metadata": {
+    "msaComplianceLevel": "Standard",
+    "recommendedForIndustries": ["General", "Professional Services", "Manufacturing"],
+    "riskLevel": "Medium",
+    "implementationComplexity": "Low",
+    "maintenanceRequired": "Monthly",
+    "auditFrequency": "Quarterly"
+  }
+}

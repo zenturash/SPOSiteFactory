@@ -1,0 +1,241 @@
+{
+  "name": "TeamSite",
+  "version": "1.0",
+  "description": "Standard team site template for collaboration in MSP environments",
+  "category": "Collaboration",
+  "templateType": "SiteCollection",
+  "webTemplate": "STS#3",
+  "lastModified": "2025-01-12T00:00:00Z",
+  "author": "MSP PowerShell Team",
+  "siteConfiguration": {
+    "title": "Team Site",
+    "description": "Collaborative workspace for team projects and document management",
+    "language": 1033,
+    "template": "STS#3",
+    "timeZone": 13,
+    "storageQuota": 1024,
+    "resourceQuota": 300,
+    "locale": "en-US"
+  },
+  "sharingSettings": {
+    "sharingCapability": "ExternalUserSharingOnly",
+    "requestAccessEnabled": true,
+    "allowSelfServiceUpgrade": false,
+    "membersCanShare": true,
+    "guestsCanShare": false,
+    "defaultSharingLinkType": "Internal",
+    "defaultLinkPermission": "Edit",
+    "requireAnonymousLinksExpireInDays": 30
+  },
+  "securitySettings": {
+    "denyAddAndCustomizePages": false,
+    "allowDesignerForCurrentUser": false,
+    "allowRevertFromInheritance": true,
+    "allowMasterPageEditing": false,
+    "showUrlStructureForCurrentUser": false,
+    "limitedAccessFileType": "OfficeOnlineFilesOnly"
+  },
+  "features": {
+    "required": [
+      {
+        "id": "00bfea71-4ea5-48d4-a4ad-7ea5c011abe5",
+        "name": "TeamCollab",
+        "description": "Team Collaboration Lists"
+      },
+      {
+        "id": "22a9ef51-737b-4ff2-9346-694633fe4416",
+        "name": "TeamSiteDocLib",
+        "description": "Document Library"
+      }
+    ],
+    "optional": [
+      {
+        "id": "0af5989a-3aea-4519-8ab0-85d91abe39ff",
+        "name": "WikiPageHomePage",
+        "description": "Wiki Page Home Page"
+      },
+      {
+        "id": "4bcccd62-dcaf-460a-a5d0-e07ccd49f8f9",
+        "name": "TenantAdmin",
+        "description": "Tenant Administration"
+      }
+    ]
+  },
+  "lists": [
+    {
+      "title": "Documents",
+      "description": "Share a document with the team by adding it to this document library.",
+      "template": "DocumentLibrary",
+      "url": "Shared Documents",
+      "enableVersioning": true,
+      "majorVersionLimit": 500,
+      "enableContentTypes": true,
+      "defaultContentTypeId": "0x0101",
+      "permissions": "Inherit"
+    },
+    {
+      "title": "Tasks",
+      "description": "Track work assignments for the team.",
+      "template": "Tasks",
+      "url": "Lists/Tasks",
+      "enableVersioning": false,
+      "enableContentTypes": true,
+      "permissions": "Inherit"
+    },
+    {
+      "title": "Calendar",
+      "description": "Keep track of upcoming meetings, deadlines, and other important events.",
+      "template": "Events",
+      "url": "Lists/Calendar",
+      "enableVersioning": false,
+      "enableContentTypes": true,
+      "permissions": "Inherit"
+    }
+  ],
+  "pages": [
+    {
+      "title": "Home",
+      "url": "SitePages/Home.aspx",
+      "layout": "Article",
+      "isHomePage": true,
+      "webParts": [
+        {
+          "type": "QuickLinks",
+          "title": "Quick Links",
+          "zone": "Header",
+          "order": 1,
+          "properties": {
+            "links": [
+              {
+                "title": "Documents",
+                "url": "/Shared Documents"
+              },
+              {
+                "title": "Calendar",
+                "url": "/Lists/Calendar"
+              },
+              {
+                "title": "Tasks",
+                "url": "/Lists/Tasks"
+              }
+            ]
+          }
+        },
+        {
+          "type": "DocumentLibrary",
+          "title": "Recent Documents",
+          "zone": "VerticalSection",
+          "order": 1,
+          "properties": {
+            "listId": "Documents",
+            "viewType": "Recent"
+          }
+        }
+      ]
+    }
+  ],
+  "navigation": {
+    "enableTopNavigation": true,
+    "enableQuickLaunch": true,
+    "topNavigationNodes": [
+      {
+        "title": "Home",
+        "url": "/",
+        "isExternal": false
+      },
+      {
+        "title": "Documents",
+        "url": "/Shared Documents/Forms/AllItems.aspx",
+        "isExternal": false
+      }
+    ],
+    "quickLaunchNodes": [
+      {
+        "title": "Recent",
+        "url": "/_layouts/15/recent.aspx",
+        "isExternal": false
+      },
+      {
+        "title": "Documents",
+        "url": "/Shared Documents/Forms/AllItems.aspx",
+        "isExternal": false
+      },
+      {
+        "title": "Calendar",
+        "url": "/Lists/Calendar/calendar.aspx",
+        "isExternal": false
+      },
+      {
+        "title": "Tasks",
+        "url": "/Lists/Tasks/AllItems.aspx",
+        "isExternal": false
+      }
+    ]
+  },
+  "permissions": {
+    "groups": [
+      {
+        "name": "Team Site Owners",
+        "description": "Use this group to grant people full control permissions to the SharePoint site",
+        "permissionLevel": "Full Control",
+        "type": "Owner"
+      },
+      {
+        "name": "Team Site Members", 
+        "description": "Use this group to grant people contribute permissions to the SharePoint site",
+        "permissionLevel": "Contribute",
+        "type": "Member"
+      },
+      {
+        "name": "Team Site Visitors",
+        "description": "Use this group to grant people read permissions to the SharePoint site",
+        "permissionLevel": "Read",
+        "type": "Visitor"
+      }
+    ]
+  },
+  "customization": {
+    "theme": {
+      "palette": "Default",
+      "isInverted": false
+    },
+    "logo": {
+      "type": "Default",
+      "url": ""
+    },
+    "headerLayout": "Standard",
+    "headerEmphasis": "None",
+    "headerBackground": "Default",
+    "navigationEmphasis": "None"
+  },
+  "validationRules": {
+    "requiredProperties": [
+      "title",
+      "template",
+      "language"
+    ],
+    "allowedTemplates": [
+      "STS#3"
+    ],
+    "storageQuotaLimits": {
+      "minimum": 100,
+      "maximum": 25000
+    }
+  },
+  "deploymentSettings": {
+    "waitForProvisioning": true,
+    "timeoutMinutes": 10,
+    "retryAttempts": 3,
+    "validateAfterCreation": true,
+    "enableDiagnostics": true
+  },
+  "metadata": {
+    "useCase": "Team collaboration and document sharing",
+    "targetAudience": "Small to medium teams (5-50 members)",
+    "maintenanceComplexity": "Low",
+    "customizationLevel": "Standard",
+    "recommendedBaseline": "MSPStandard",
+    "supportedRegions": ["Global", "GCC"],
+    "estimatedProvisioningTime": "2-5 minutes"
+  }
+}
