@@ -409,7 +409,7 @@ function Test-SPOSiteFeatures {
             }
         } -ClientName $ClientName -Category 'Provisioning' -SuppressErrors
 
-        return $featureResults ?? @{ SiteFeatures = @(); WebFeatures = @(); TotalCount = 0; CriticalFeatures = @{} }
+        return $(if ($featureResults) { $featureResults } else { @{ SiteFeatures = @(); WebFeatures = @(); TotalCount = 0; CriticalFeatures = @{} } })
     }
     catch {
         Write-SPOFactoryLog -Message "Error checking site features: $($_.Exception.Message)" -Level Warning -ClientName $ClientName -Category 'Provisioning' -Exception $_.Exception
@@ -437,7 +437,7 @@ function Get-SPOSiteSubsites {
             Get-PnPSubWeb -Recurse | Select-Object Title, Url, Created, WebTemplate, Language
         } -ClientName $ClientName -Category 'Provisioning' -SuppressErrors
 
-        return $subsites ?? @()
+        return $(if ($subsites) { $subsites } else { @() })
     }
     catch {
         Write-SPOFactoryLog -Message "Error retrieving subsites: $($_.Exception.Message)" -Level Warning -ClientName $ClientName -Category 'Provisioning' -Exception $_.Exception

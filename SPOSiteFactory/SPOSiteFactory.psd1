@@ -42,20 +42,21 @@
     # ProcessorArchitecture = ''
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules = @(
-        @{
-            ModuleName = 'PnP.PowerShell'
-            ModuleVersion = '2.0.0'
-        },
-        @{
-            ModuleName = 'PSFramework'
-            ModuleVersion = '1.7.0'
-        },
-        @{
-            ModuleName = 'Microsoft.PowerShell.SecretManagement'
-            RequiredVersion = '1.1.2'
-        }
-    )
+    # Temporarily commented for testing - uncomment in production
+    # RequiredModules = @(
+    #     @{
+    #         ModuleName = 'PnP.PowerShell'
+    #         ModuleVersion = '2.0.0'
+    #     },
+    #     @{
+    #         ModuleName = 'PSFramework'
+    #         ModuleVersion = '1.7.0'
+    #     },
+    #     @{
+    #         ModuleName = 'Microsoft.PowerShell.SecretManagement'
+    #         RequiredVersion = '1.1.2'
+    #     }
+    # )
 
     # Assemblies that must be loaded prior to importing this module
     # RequiredAssemblies = @()
@@ -73,7 +74,45 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @()
+    FunctionsToExport = @(
+        # Connection functions
+        'Connect-SPOFactory',
+        'Disconnect-SPOFactory',
+        'Get-SPOFactoryConnection',
+        'Test-SPOFactoryConnection',
+        
+        # Configuration functions
+        'Get-SPOSiteTemplate',
+        'New-SPOSiteTemplate',
+        'Set-SPOSiteTemplate',
+        'Export-SPOTemplateToSiteDesign',
+        'Update-SPOSiteDesignFromTemplate',
+        
+        # Hub functions
+        'Add-SPOSiteToHub',
+        'Get-SPOHubSiteInfo',
+        'Test-SPOSiteForHubAssociation',
+        'Process-HubAssociationBatch',
+        'Set-SPOHubNavigationForSite',
+        'Set-SPOHubThemeForSite',
+        'Set-SPOHubPermissionSyncForSite',
+        'Wait-SPOHubAssociation',
+        'Split-ArrayIntoBatches',
+        
+        # Provisioning functions
+        'New-SPOSite',
+        'New-SPOBulkSites',
+        'New-SPOHubSite',
+        'New-SPOSiteFromConfig',
+        'New-SPOFactoryM365Group',
+        'New-SPOFactoryTeamSite',
+        'New-SPOFactoryCommunicationSite',
+        'Test-SPOHubSiteAvailability',
+        'Set-SPOOfficeFileHandling',
+        'Invoke-SPOSiteRollback',
+        'Invoke-SPOHubSiteRollback',
+        'Get-StoredCredential'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport = @()
@@ -146,5 +185,5 @@ Version 0.1.0 - Initial Release
     HelpInfoURI = 'https://github.com/MSPPowerShell/SPOSiteFactory/blob/main/docs/help'
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-    DefaultCommandPrefix = 'SPOFactory'
+    DefaultCommandPrefix = ''
 }

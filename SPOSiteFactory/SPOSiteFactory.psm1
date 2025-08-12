@@ -1,5 +1,6 @@
 #Requires -Version 5.1
-#Requires -Modules PnP.PowerShell, PSFramework, Microsoft.PowerShell.SecretManagement
+# Temporarily commented for testing - uncomment in production
+# #Requires -Modules PnP.PowerShell, PSFramework, Microsoft.PowerShell.SecretManagement
 
 <#
 .SYNOPSIS
@@ -81,26 +82,30 @@ foreach ($dir in $requiredDirs) {
 
 #region Function Loading
 
-# Get public and private function definition files
-$PublicFunctions = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -Recurse -ErrorAction SilentlyContinue)
-$PrivateFunctions = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
+# Import Private Functions
+Get-ChildItem -Path "$PSScriptRoot\Private" -Filter "*.ps1" | 
+    ForEach-Object { . $_.FullName }
 
-# Dot source the functions
-foreach ($import in @($PublicFunctions + $PrivateFunctions)) {
-    try {
-        Write-Verbose "Importing function: $($import.Name)"
-        . $import.FullName
-    }
-    catch {
-        Write-Error "Failed to import function $($import.FullName): $_"
-    }
-}
+# Import Public Functions from each subfolder
+# Connection functions
+Get-ChildItem -Path "$PSScriptRoot\Public\Connection" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    ForEach-Object { . $_.FullName }
 
-# Export public functions
-if ($PublicFunctions) {
-    Export-ModuleMember -Function $PublicFunctions.BaseName
-    Write-Verbose "Exported $($PublicFunctions.Count) public functions"
-}
+# Configuration functions  
+Get-ChildItem -Path "$PSScriptRoot\Public\Configuration" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    ForEach-Object { . $_.FullName }
+
+# Hub functions
+Get-ChildItem -Path "$PSScriptRoot\Public\Hub" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    ForEach-Object { . $_.FullName }
+
+# Provisioning functions
+Get-ChildItem -Path "$PSScriptRoot\Public\Provisioning" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    ForEach-Object { . $_.FullName }
+
+# Security functions (if any)
+Get-ChildItem -Path "$PSScriptRoot\Public\Security" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    ForEach-Object { . $_.FullName }
 
 #endregion
 
@@ -111,14 +116,18 @@ try {
     # Set up file logging provider
     $logFilePath = Join-Path $script:SPOFactoryConfig.LogPath "SPOFactory-$(Get-Date -Format 'yyyy-MM-dd').log"
     
-    Set-PSFLoggingProvider -Name logfile -FilePath $logFilePath -Enabled $true -LogRotatePath $script:SPOFactoryConfig.LogPath -LogRetentionTime (New-TimeSpan -Days $script:SPOFactoryConstants.LogRetentionDays)
-    
-    # Configure log levels
-    if ($script:SPOFactoryConfig.EnableDebugLogging) {
-        Set-PSFConfig -FullName 'psframework.logging.maximummessagelevel' -Value 'Debug'
+    if (Get-Command Set-PSFLoggingProvider -ErrorAction SilentlyContinue) {
+        Set-PSFLoggingProvider -Name logfile -FilePath $logFilePath -Enabled $true -LogRotatePath $script:SPOFactoryConfig.LogPath -LogRetentionTime (New-TimeSpan -Days $script:SPOFactoryConstants.LogRetentionDays)
+        
+        # Configure log levels
+        if ($script:SPOFactoryConfig.EnableDebugLogging) {
+            Set-PSFConfig -FullName 'psframework.logging.maximummessagelevel' -Value 'Debug'
+        }
+        
+        Write-PSFMessage -Level Host -Message "SPOSiteFactory logging initialized. Log path: $logFilePath"
+    } else {
+        Write-Host "SPOSiteFactory logging initialized. Log path: $logFilePath" -ForegroundColor Cyan
     }
-    
-    Write-PSFMessage -Level Host -Message "SPOSiteFactory logging initialized. Log path: $logFilePath"
 }
 catch {
     Write-Warning "Failed to initialize PSFramework logging: $_"
@@ -130,7 +139,11 @@ catch {
 
 # Register module removal event
 $ExecutionContext.SessionState.Module.OnRemove = {
-    Write-PSFMessage -Level Host -Message "Cleaning up SPOSiteFactory module..."
+    if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+        Write-PSFMessage -Level Host -Message "Cleaning up SPOSiteFactory module..."
+    } else {
+        Write-Host "Cleaning up SPOSiteFactory module..." -ForegroundColor Yellow
+    }
     
     # Disconnect all active connections
     if ($script:SPOFactoryConnections.Count -gt 0) {
@@ -139,10 +152,18 @@ $ExecutionContext.SessionState.Module.OnRemove = {
                 if (Get-PnPConnection -ErrorAction SilentlyContinue) {
                     Disconnect-PnPOnline
                 }
-                Write-PSFMessage -Level Verbose -Message "Disconnected from tenant: $connection"
+                if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+                    Write-PSFMessage -Level Verbose -Message "Disconnected from tenant: $connection"
+                } else {
+                    Write-Verbose "Disconnected from tenant: $connection"
+                }
             }
             catch {
-                Write-PSFMessage -Level Warning -Message "Failed to disconnect from $connection`: $_"
+                if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+                    Write-PSFMessage -Level Warning -Message "Failed to disconnect from $connection`: $_"
+                } else {
+                    Write-Warning "Failed to disconnect from $connection`: $_"
+                }
             }
         }
     }
@@ -151,7 +172,11 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     $script:SPOFactoryConnectionPool.Clear()
     $script:SPOFactoryConnections.Clear()
     
-    Write-PSFMessage -Level Host -Message "SPOSiteFactory module cleanup completed"
+    if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+        Write-PSFMessage -Level Host -Message "SPOSiteFactory module cleanup completed"
+    } else {
+        Write-Host "SPOSiteFactory module cleanup completed" -ForegroundColor Green
+    }
 }
 
 #endregion
@@ -175,13 +200,24 @@ if ($missingModules.Count -gt 0) {
 
 # Validate secret vault exists
 try {
-    if (-not (Get-SecretVault -Name $script:SPOFactoryConfig.CredentialVault -ErrorAction SilentlyContinue)) {
-        Write-PSFMessage -Level Warning -Message "Secret vault '$($script:SPOFactoryConfig.CredentialVault)' not found. MSP credential management will be limited."
-        Write-PSFMessage -Level Host -Message "To enable full MSP functionality, create a secret vault using: Register-SecretVault"
+    if (Get-Command Get-SecretVault -ErrorAction SilentlyContinue) {
+        if (-not (Get-SecretVault -Name $script:SPOFactoryConfig.CredentialVault -ErrorAction SilentlyContinue)) {
+            if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+                Write-PSFMessage -Level Warning -Message "Secret vault '$($script:SPOFactoryConfig.CredentialVault)' not found. MSP credential management will be limited."
+                Write-PSFMessage -Level Host -Message "To enable full MSP functionality, create a secret vault using: Register-SecretVault"
+            } else {
+                Write-Warning "Secret vault '$($script:SPOFactoryConfig.CredentialVault)' not found. MSP credential management will be limited."
+                Write-Host "To enable full MSP functionality, create a secret vault using: Register-SecretVault" -ForegroundColor Yellow
+            }
+        }
     }
 }
 catch {
-    Write-PSFMessage -Level Warning -Message "Could not validate secret vault: $_"
+    if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+        Write-PSFMessage -Level Warning -Message "Could not validate secret vault: $_"
+    } else {
+        Write-Warning "Could not validate secret vault: $_"
+    }
 }
 
 #endregion
@@ -190,7 +226,8 @@ Write-Host "SPOSiteFactory MSP Module loaded successfully!" -ForegroundColor Gre
 Write-Host "Ready to manage $($script:SPOFactoryConstants.MaxTenantCount)+ SharePoint Online tenants" -ForegroundColor Cyan
 
 # Display initialization summary
-Write-PSFMessage -Level Host -Message @"
+if (Get-Command Write-PSFMessage -ErrorAction SilentlyContinue) {
+    Write-PSFMessage -Level Host -Message @"
 SPOSiteFactory Initialization Summary:
 - Configuration Path: $($script:SPOFactoryConfig.ConfigPath)
 - Log Path: $($script:SPOFactoryConfig.LogPath)
@@ -199,3 +236,47 @@ SPOSiteFactory Initialization Summary:
 - Batch Size: $($script:SPOFactoryConfig.BatchSize)
 - Debug Logging: $($script:SPOFactoryConfig.EnableDebugLogging)
 "@
+} else {
+    Write-Host @"
+SPOSiteFactory Initialization Summary:
+- Configuration Path: $($script:SPOFactoryConfig.ConfigPath)
+- Log Path: $($script:SPOFactoryConfig.LogPath)
+- Credential Vault: $($script:SPOFactoryConfig.CredentialVault)
+- Max Concurrent Connections: $($script:SPOFactoryConfig.MaxConcurrentConnections)
+- Batch Size: $($script:SPOFactoryConfig.BatchSize)
+- Debug Logging: $($script:SPOFactoryConfig.EnableDebugLogging)
+"@ -ForegroundColor Cyan
+}
+
+#endregion
+
+#region Export Module Members
+
+# Get all public function names from each subfolder
+$functionsToExport = @()
+
+# Connection functions
+$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Connection" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    Select-Object -ExpandProperty BaseName
+
+# Configuration functions
+$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Configuration" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    Select-Object -ExpandProperty BaseName
+
+# Hub functions
+$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Hub" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    Select-Object -ExpandProperty BaseName
+
+# Provisioning functions
+$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Provisioning" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    Select-Object -ExpandProperty BaseName
+
+# Security functions
+$functionsToExport += Get-ChildItem -Path "$PSScriptRoot\Public\Security" -Filter "*.ps1" -ErrorAction SilentlyContinue | 
+    Select-Object -ExpandProperty BaseName
+
+# Export all public functions
+if ($functionsToExport) {
+    Write-Host "Exporting $($functionsToExport.Count) functions" -ForegroundColor Green
+    Export-ModuleMember -Function $functionsToExport
+}

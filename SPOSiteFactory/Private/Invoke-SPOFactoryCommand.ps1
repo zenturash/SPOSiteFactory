@@ -605,7 +605,7 @@ function Get-SPOFactoryErrorDocumentationUrl {
         'ServiceUnavailable' = "https://status.office365.com/"
     }
 
-    return $urls[$Classification] ?? $baseUrl
+    return $(if ($urls[$Classification]) { $urls[$Classification] } else { $baseUrl })
 }
 
 # Define custom exception class for SPOFactory
